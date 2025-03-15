@@ -2,3 +2,5 @@ langchain
 langchain-google-genai
 black
 python-dotenv
+langchain_community
+langchain-ollama
