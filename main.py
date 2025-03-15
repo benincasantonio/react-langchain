@@ -1,5 +1,6 @@
 from typing import Union, List
 from dotenv import load_dotenv
+from langchain.agents.format_scratchpad import format_log_to_str
 from langchain_core.agents import AgentAction, AgentFinish
 from langchain.agents import tool, Tool
 from langchain.prompts import PromptTemplate
@@ -13,6 +14,8 @@ load_dotenv()
 @tool
 def get_text_length(text: str) -> int:
     """Returns the length of the text by counting the number of characters in the text."""
+    # Strip away any leading or trailing whitespace and non-alphabetical characters
+    text = text.strip("\n").strip('"').strip()
     return len(text)
 
 
@@ -47,7 +50,7 @@ if __name__ == "__main__":
 
     Begin!
     Question: {input}
-    Thought:
+    Thought: {agent_scratchpad}
     """
 
     prompt_template = PromptTemplate.from_template(template=template).partial(
@@ -56,14 +59,26 @@ if __name__ == "__main__":
     )
 
     llm = ChatOllama(
-        model="llama3.2",
+        model="phi4",
         temperature=0,
         stop=["\nObservation"],
     )
 
-    chain = {"input": lambda x:x["input"]} | prompt_template | llm | ReActSingleInputOutputParser()
+    intermediate_steps = []
 
-    agent_step: Union[AgentAction, AgentFinish] = chain.invoke({"input": "What is the length of 'Capibara'?"})
+    chain = (
+        {
+            "input": lambda x: x["input"],
+            "agent_scratchpad": lambda x: format_log_to_str(x["agent_scratchpad"]),
+        }
+        | prompt_template
+        | llm
+        | ReActSingleInputOutputParser()
+    )
+
+    agent_step: Union[AgentAction, AgentFinish] = chain.invoke(
+        {"input": "What is the length of Capibara?", "agent_scratchpad": intermediate_steps}
+    )
 
     if isinstance(agent_step, AgentAction):
 
@@ -74,6 +89,11 @@ if __name__ == "__main__":
 
         observation = tool_to_run.func(str(tool_input))
         print(f"{observation=}")
+        intermediate_steps.append((agent_step, str(observation)))
 
+    agent_step: Union[AgentAction, AgentFinish] = chain.invoke(
+        {"input": "What is the length of Capibara?", "agent_scratchpad": intermediate_steps}
+    )
 
-
+    if isinstance(agent_step, AgentFinish):
+        print(agent_step.return_values)
