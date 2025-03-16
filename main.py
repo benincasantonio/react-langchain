@@ -8,6 +8,8 @@ from langchain.tools.render import render_text_description
 from langchain.agents.output_parsers import ReActSingleInputOutputParser
 from langchain_ollama import ChatOllama
 
+from callbacks import AgentCallbackHandler
+
 load_dotenv()
 
 
@@ -62,6 +64,7 @@ if __name__ == "__main__":
         model="phi4",
         temperature=0,
         stop=["\nObservation"],
+        callbacks=[AgentCallbackHandler()]
     )
 
     intermediate_steps = []
@@ -96,4 +99,4 @@ if __name__ == "__main__":
     )
 
     if isinstance(agent_step, AgentFinish):
-        print(agent_step.return_values)
+        print(agent_step.return_values.output)
