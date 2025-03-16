@@ -79,24 +79,23 @@ if __name__ == "__main__":
         | ReActSingleInputOutputParser()
     )
 
-    agent_step: Union[AgentAction, AgentFinish] = chain.invoke(
-        {"input": "What is the length of Capibara?", "agent_scratchpad": intermediate_steps}
-    )
+    agent_step = None
 
-    if isinstance(agent_step, AgentAction):
+    while not isinstance(agent_step, AgentFinish):
+        agent_step: Union[AgentAction, AgentFinish] = chain.invoke(
+            {"input": "What is the length of Capibara?", "agent_scratchpad": intermediate_steps}
+        )
 
-        tool_name = agent_step.tool
-        tool_to_run = find_tool_by_name(tools, tool_name)
+        if isinstance(agent_step, AgentAction):
+            tool_name = agent_step.tool
+            tool_to_run = find_tool_by_name(tools, tool_name)
 
-        tool_input = agent_step.tool_input
+            tool_input = agent_step.tool_input
 
-        observation = tool_to_run.func(str(tool_input))
-        print(f"{observation=}")
-        intermediate_steps.append((agent_step, str(observation)))
+            observation = tool_to_run.func(str(tool_input))
+            print(f"{observation=}")
+            intermediate_steps.append((agent_step, str(observation)))
 
-    agent_step: Union[AgentAction, AgentFinish] = chain.invoke(
-        {"input": "What is the length of Capibara?", "agent_scratchpad": intermediate_steps}
-    )
 
     if isinstance(agent_step, AgentFinish):
         print(agent_step.return_values.output)
