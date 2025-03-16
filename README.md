@@ -17,11 +17,27 @@ This project demonstrates how to build a ReAct agent using LangChain. The ReAct 
 - Uses Ollama with Phi-4 as the LLM
 - Custom callback handler to display prompts and responses
 - Example tool implementation (`get_text_length`)
+- LangSmith integration for tracing and debugging
+
+## LangSmith Integration
+
+This project includes integration with [LangSmith](https://smith.langchain.com/), which provides tracing, monitoring, and evaluation capabilities for LangChain applications:
+
+- **Tracing**: Track and visualize the execution of your agent's reasoning steps
+- **Debugging**: Easily identify issues with your agent's reasoning process
+- **Performance Monitoring**: Analyze latency, token usage, and other metrics
+
+To use LangSmith, you need to:
+
+1. Create a LangSmith account at https://smith.langchain.com/
+2. Get your API key from the LangSmith dashboard
+3. Configure the environment variables in your `.env` file
 
 ## Requirements
 
 - Python 3.8+
 - Ollama running locally with the Phi-4 model
+- LangSmith account (for tracing and debugging)
 
 ## Installation
 
@@ -32,7 +48,14 @@ This project demonstrates how to build a ReAct agent using LangChain. The ReAct 
 pip install -r requirements.txt
 ```
 
-3. Set up your environment variables in a `.env` file
+3. Set up your environment variables in a `.env` file (copy from `.env.example`):
+
+```
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
+LANGSMITH_API_KEY="your-langsmith-api-key"
+LANGSMITH_PROJECT="your-project-name"
+```
 
 ## Usage
 
@@ -44,11 +67,14 @@ python main.py
 
 This will execute a ReAct agent that answers the question "What is the length of Capibara?" by using the `get_text_length` tool.
 
+After running the agent, you can view the trace in your LangSmith dashboard to analyze the agent's reasoning steps and performance.
+
 ## Project Structure
 
 - `main.py` - Contains the ReAct agent implementation and tool definition
 - `callbacks.py` - Defines a custom callback handler to display prompts and responses
 - `requirements.txt` - Lists required dependencies
+- `.env.example` - Template for environment variables including LangSmith configuration
 
 ## How It Works
 
